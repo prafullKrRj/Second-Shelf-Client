@@ -6,12 +6,23 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptions
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
+import androidx.navigation.compose.rememberNavController
+import com.prafull.secondshelf.onBoard.OnBoardingStartingScreen
+import com.prafull.secondshelf.onBoard.login.LoginScreen
+import com.prafull.secondshelf.onBoard.register.RegisterScreen
 import com.prafull.secondshelf.ui.theme.SecondShelfTheme
+import com.prafull.secondshelf.utils.SharedPrefManager
+import org.koin.androidx.compose.getViewModel
+import org.koin.compose.koinInject
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +30,54 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SecondShelfTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .systemBarsPadding()
+                ) { innerPadding ->
+                    val navController = rememberNavController()
+                    val prefManager = koinInject<SharedPrefManager>()
+                    val sd =
+                        if (prefManager.isLoggedIn()) Routes.MainApp else Routes.OnBoard
+                    NavHost(
+                        modifier = Modifier.padding(innerPadding),
+                        navController = navController,
+                        startDestination = sd
+                    ) {
+                        onBoardGraph(navController)
+                        mainAppGraph(navController)
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun NavGraphBuilder.onBoardGraph(navController: NavController) {
+    navigation<Routes.OnBoard>(startDestination = OnBoardRoutes.Start) {
+        composable<OnBoardRoutes.Register> {
+            RegisterScreen(registerViewModel = getViewModel(), navController)
+        }
+        composable<OnBoardRoutes.Start> {
+            OnBoardingStartingScreen(navController)
+        }
+        composable<OnBoardRoutes.Login> {
+            LoginScreen(loginViewModel = getViewModel(), navController)
+        }
+    }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SecondShelfTheme {
-        Greeting("Android")
+fun NavGraphBuilder.mainAppGraph(navController: NavController) {
+    navigation<Routes.MainApp>(startDestination = MainAppRoutes.HomeScreen) {
+        composable<MainAppRoutes.HomeScreen> {
+
+        }
     }
+}
+
+fun NavController.clearBackstackAndNavigate(route: Any) {
+    val navOptions = NavOptions.Builder()
+        .setPopUpTo(graph.startDestinationId, inclusive = true)
+        .build()
+    navigate(route, navOptions)
 }
