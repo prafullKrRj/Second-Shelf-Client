@@ -38,5 +38,5 @@ sealed interface MainAppRoutes {
     data object ProfileScreen : MainAppRoutes
 
     @Serializable
-    data object SoldScreen : MainAppRoutes
+    data object BooksScreen : MainAppRoutes
 }

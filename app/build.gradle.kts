@@ -81,4 +81,5 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
 }

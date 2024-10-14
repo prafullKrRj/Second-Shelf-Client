@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.prafull.secondshelf.mainApp.ui.MainApp
 import com.prafull.secondshelf.onBoard.OnBoardingStartingScreen
 import com.prafull.secondshelf.onBoard.login.LoginScreen
 import com.prafull.secondshelf.onBoard.register.RegisterScreen
@@ -45,7 +46,9 @@ class MainActivity : ComponentActivity() {
                         startDestination = sd
                     ) {
                         onBoardGraph(navController)
-                        mainAppGraph(navController)
+                        composable<Routes.MainApp> {
+                            MainApp(getViewModel())
+                        }
                     }
                 }
             }
@@ -63,14 +66,6 @@ fun NavGraphBuilder.onBoardGraph(navController: NavController) {
         }
         composable<OnBoardRoutes.Login> {
             LoginScreen(loginViewModel = getViewModel(), navController)
-        }
-    }
-}
-
-fun NavGraphBuilder.mainAppGraph(navController: NavController) {
-    navigation<Routes.MainApp>(startDestination = MainAppRoutes.HomeScreen) {
-        composable<MainAppRoutes.HomeScreen> {
-
         }
     }
 }

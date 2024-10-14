@@ -1,5 +1,7 @@
 package com.prafull.secondshelf.di
 
+import com.prafull.secondshelf.mainApp.screens.home.HomeViewModel
+import com.prafull.secondshelf.mainApp.ui.MainViewModel
 import com.prafull.secondshelf.network.ApiService
 import com.prafull.secondshelf.network.AuthenticatedApiService
 import com.prafull.secondshelf.onBoard.login.LoginViewModel
@@ -51,6 +53,10 @@ val appModule = module {
     viewModel {
         RegisterViewModel()
     }
+    viewModel<MainViewModel> {
+        MainViewModel()
+    }
+    viewModel { HomeViewModel() }
 }
 
 const val BASE_URL = "http://192.168.222.173:8080/"
