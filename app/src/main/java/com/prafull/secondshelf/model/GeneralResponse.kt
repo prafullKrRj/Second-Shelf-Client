@@ -1,4 +1,4 @@
-package com.prafull.secondshelf.onBoard.model
+package com.prafull.secondshelf.model
 
 import com.google.gson.annotations.SerializedName
 

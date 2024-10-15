@@ -11,17 +11,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.navigation.compose.rememberNavController
-import com.prafull.secondshelf.MainAppRoutes
+import androidx.navigation.NavController
 import com.prafull.secondshelf.R
+import com.prafull.secondshelf.mainApp.screens.books.BookScreen
 import com.prafull.secondshelf.mainApp.screens.home.HomeScreen
-import com.prafull.secondshelf.mainApp.screens.home.HomeViewModel
+import com.prafull.secondshelf.mainApp.screens.list.ListingScreen
+import com.prafull.secondshelf.mainApp.screens.profile.UserProfileScreen
+import com.prafull.secondshelf.model.User
 import org.koin.androidx.compose.getViewModel
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun MainApp(viewModel: MainViewModel, logout: () -> Unit = {}) {
-    val navController = rememberNavController()
+fun MainApp(navController: NavController, viewModel: MainViewModel, logout: () -> Unit = {}) {
     var currentDestination by rememberSaveable {
         mutableStateOf(AppDestinations.Home)
     }
@@ -41,19 +41,28 @@ fun MainApp(viewModel: MainViewModel, logout: () -> Unit = {}) {
     }) {
         when (currentDestination) {
             AppDestinations.Home -> {
-                HomeScreen(viewModel = getViewModel())
+                HomeScreen(viewModel = getViewModel(), navController)
             }
 
             AppDestinations.Books -> {
-                Text(text = "Books")
+                BookScreen(viewModel = getViewModel(), navController)
             }
 
             AppDestinations.Listing -> {
-                Text(text = "Listing")
+                ListingScreen(viewModel = getViewModel(), navController)
             }
 
             AppDestinations.Profile -> {
-                Text(text = "pROFILE")
+                UserProfileScreen(
+                    user = User(
+                        username = "prafull",
+                        password = "123456",
+                        fullName = "Prafull Kumar",
+                        mobileNumber = "1234567890"
+                    )
+                ) {
+
+                }
             }
 
             AppDestinations.Settings -> {
@@ -68,37 +77,31 @@ enum class Models {
 }
 
 enum class AppDestinations(
-    val route: Any,
     @DrawableRes val selectedIcon: Int,
     @DrawableRes val unSelectedIcon: Int,
     val title: String
 ) {
     Home(
-        MainAppRoutes.HomeScreen,
         R.drawable.baseline_home_24,
         R.drawable.outline_home_24,
         "Home"
     ),
     Books(
-        MainAppRoutes.BooksScreen,
         R.drawable.baseline_library_books_24,
         R.drawable.outline_library_books_24,
         "Books"
     ),
     Listing(
-        MainAppRoutes.ListingScreen,
         R.drawable.outline_list_24,
         R.drawable.outline_list_24,
         "Listing"
     ),
     Profile(
-        MainAppRoutes.ProfileScreen,
         R.drawable.baseline_person_24,
         R.drawable.outline_person_24,
         "Profile"
     ),
     Settings(
-        MainAppRoutes.SettingsScreen,
         R.drawable.baseline_settings_24,
         R.drawable.outline_settings_24,
         "Settings"

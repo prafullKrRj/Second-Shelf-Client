@@ -1,5 +1,6 @@
 package com.prafull.secondshelf
 
+import com.prafull.secondshelf.model.Book
 import kotlinx.serialization.Serializable
 
 
@@ -29,14 +30,38 @@ sealed interface MainAppRoutes {
     data object HomeScreen : MainAppRoutes
 
     @Serializable
-    data object SettingsScreen : MainAppRoutes
+    data class SearchScreen(
+        val initialSearchQuery: String = ""
+    ) : MainAppRoutes
 
     @Serializable
-    data object ListingScreen : MainAppRoutes
-
-    @Serializable
-    data object ProfileScreen : MainAppRoutes
-
-    @Serializable
-    data object BooksScreen : MainAppRoutes
+    data class BookDetailsScreen(
+        val author: String,
+        val coverImageUrl: String,
+        val description: String,
+        val genre: String,
+        val id: Int,
+        val listedAt: Long,
+        val numberOfPages: Int,
+        val price: Double,
+        val title: String,
+        val yearOfPrinting: Int,
+        val sellerUserName: String? = null,
+        val sellerNumber: String,
+        val sellerFullName: String? = null
+    ) : MainAppRoutes {
+        fun toBook() = Book(
+            author,
+            coverImageUrl,
+            description,
+            genre,
+            id,
+            listedAt,
+            numberOfPages,
+            price,
+            title,
+            yearOfPrinting,
+            sellerUserName, sellerNumber, sellerFullName
+        )
+    }
 }

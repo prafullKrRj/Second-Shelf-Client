@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prafull.secondshelf.di.BASE_URL
-import com.prafull.secondshelf.onBoard.model.GeneralResponse
+import com.prafull.secondshelf.model.GeneralResponse
 import com.prafull.secondshelf.utils.SharedPrefManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

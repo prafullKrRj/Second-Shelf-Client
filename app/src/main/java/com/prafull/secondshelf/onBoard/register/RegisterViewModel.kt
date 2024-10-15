@@ -3,8 +3,8 @@ package com.prafull.secondshelf.onBoard.register
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prafull.secondshelf.model.User
 import com.prafull.secondshelf.network.ApiService
-import com.prafull.secondshelf.onBoard.model.User
 import com.prafull.secondshelf.utils.SharedPrefManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
