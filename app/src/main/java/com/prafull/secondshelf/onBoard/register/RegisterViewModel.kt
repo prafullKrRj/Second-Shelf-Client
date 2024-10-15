@@ -9,7 +9,6 @@ import com.prafull.secondshelf.utils.SharedPrefManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -52,12 +51,20 @@ class RegisterViewModel : ViewModel(), KoinComponent {
                         mobileNumber = _uiState.value.mobileNumber
                     )
                 )
-                if (response.success) {
-                    pref.saveUser(_uiState.value.username, _uiState.value.password)
-                    _navigate.update { true }
-                    _uiState.value = _uiState.value.copy(isLoading = false)
+                if (response.isSuccessful) {
+                    pref.loginUser(
+                        User(
+                            username = _uiState.value.username,
+                            password = _uiState.value.password,
+                            fullName = _uiState.value.fullName,
+                            mobileNumber = _uiState.value.mobileNumber
+                        )
+                    )
+                    _navigate.value = true
                 } else {
-                    throw Exception(response.message)
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false, errorMessage = "Registration failed. Please try again."
+                    )
                 }
             } catch (e: HttpException) {
                 _uiState.value = _uiState.value.copy(

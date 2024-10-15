@@ -7,6 +7,6 @@ data class Transaction(
     @SerializedName("bookId") val bookId: Long,
     @SerializedName("amount") val amount: Double,
     @SerializedName("transactionDate") val transactionDate: Long? = null,
-    @SerializedName("sellerUserName") val sellerUserName: String,
+    @SerializedName("sellerUserName") val sellerUserName: String? = null,
     @SerializedName("buyerUserName") val buyerUserName: String
 )

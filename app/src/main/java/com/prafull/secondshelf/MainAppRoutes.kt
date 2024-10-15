@@ -30,6 +30,9 @@ sealed interface MainAppRoutes {
     data object HomeScreen : MainAppRoutes
 
     @Serializable
+    data object AddBookScreen : MainAppRoutes
+
+    @Serializable
     data class SearchScreen(
         val initialSearchQuery: String = ""
     ) : MainAppRoutes
@@ -40,7 +43,7 @@ sealed interface MainAppRoutes {
         val coverImageUrl: String,
         val description: String,
         val genre: String,
-        val id: Int,
+        val id: Long,
         val listedAt: Long,
         val numberOfPages: Int,
         val price: Double,

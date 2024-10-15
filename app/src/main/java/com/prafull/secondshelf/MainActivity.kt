@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.prafull.secondshelf.mainApp.screens.commons.BookDetailsScreen
 import com.prafull.secondshelf.mainApp.screens.home.searchScreen.SearchScreen
+import com.prafull.secondshelf.mainApp.screens.list.addingBook.BookListingScreen
 import com.prafull.secondshelf.mainApp.ui.MainApp
 import com.prafull.secondshelf.onBoard.OnBoardingStartingScreen
 import com.prafull.secondshelf.onBoard.login.LoginScreen
@@ -54,7 +55,10 @@ class MainActivity : ComponentActivity() {
                         onBoardGraph(navController)
                         navigation<Routes.MainApp>(startDestination = MainAppRoutes.HomeScreen) {
                             composable<MainAppRoutes.HomeScreen> {
-                                MainApp(navController, getViewModel())
+                                MainApp(navController, getViewModel()) {
+                                    prefManager.logoutUser()
+                                    navController.clearBackstackAndNavigate(Routes.OnBoard)
+                                }
                             }
                             composable<MainAppRoutes.SearchScreen> {
                                 SearchScreen(
@@ -67,6 +71,9 @@ class MainActivity : ComponentActivity() {
                                     book = it.toRoute<MainAppRoutes.BookDetailsScreen>().toBook(),
                                     navController = navController
                                 )
+                            }
+                            composable<MainAppRoutes.AddBookScreen> {
+                                BookListingScreen(getViewModel(), navController)
                             }
                         }
                     }

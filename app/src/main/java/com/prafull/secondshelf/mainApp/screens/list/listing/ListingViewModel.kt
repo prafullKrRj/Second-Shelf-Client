@@ -1,8 +1,9 @@
-package com.prafull.secondshelf.mainApp.screens.list
+package com.prafull.secondshelf.mainApp.screens.list.listing
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prafull.secondshelf.model.Book
+import com.prafull.secondshelf.model.Transaction
 import com.prafull.secondshelf.network.AuthenticatedApiService
 import com.prafull.secondshelf.utils.BC
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +25,7 @@ class ListingViewModel : ViewModel(), KoinComponent {
     }
 
     fun getBooks() = viewModelScope.launch {
+        _listedBooks.value = BC.Loading
         try {
             val books = service.getUserListedBooks()
             if (books.isSuccessful) {
@@ -34,6 +36,15 @@ class ListingViewModel : ViewModel(), KoinComponent {
             }
         } catch (e: Exception) {
             _listedBooks.value = BC.Error(e)
+        }
+    }
+
+    suspend fun markBookAsSold(trans: Transaction): Boolean {
+        try {
+            val response = service.soldBook(trans)
+            return response.isSuccessful && response.body()?.success == true
+        } catch (e: Exception) {
+            return false
         }
     }
 }

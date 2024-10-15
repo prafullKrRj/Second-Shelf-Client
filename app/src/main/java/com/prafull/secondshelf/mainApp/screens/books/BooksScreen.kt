@@ -69,7 +69,10 @@ fun BookScreen(viewModel: BookViewModel, navController: NavController) {
         }
     ) { innerPadding ->
 
-        Column(modifier = Modifier.padding(innerPadding)) {
+        Column(
+            modifier = Modifier.padding(innerPadding), verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             TabRow(
                 selectedTabIndex = pagerState.currentPage,
                 indicator = { tabPositions: List<TabPosition> ->
@@ -99,7 +102,19 @@ fun BookScreen(viewModel: BookViewModel, navController: NavController) {
                     0 -> {
                         when (soldBooks) {
                             is BC.Loading -> Text("Loading...")
-                            is BC.Success -> TransactionList((soldBooks as BC.Success<TransactionResponse>).data)
+                            is BC.Success -> {
+                                if ((soldBooks as BC.Success<TransactionResponse>).data.isEmpty()) {
+                                    Text(
+                                        text = "No sold books yet",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                } else {
+                                    TransactionList((soldBooks as BC.Success<TransactionResponse>).data)
+                                }
+                            }
+
                             is BC.Error -> Text("Error: ${(soldBooks as BC.Error).exception.message}")
                         }
                     }
@@ -107,7 +122,19 @@ fun BookScreen(viewModel: BookViewModel, navController: NavController) {
                     1 -> {
                         when (boughtBooks) {
                             is BC.Loading -> Text("Loading...")
-                            is BC.Success -> TransactionList((boughtBooks as BC.Success<TransactionResponse>).data)
+                            is BC.Success -> {
+                                if ((boughtBooks as BC.Success<TransactionResponse>).data.isEmpty()) {
+                                    Text(
+                                        text = "No bought books yet",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                } else {
+                                    TransactionList((boughtBooks as BC.Success<TransactionResponse>).data)
+                                }
+                            }
+
                             is BC.Error -> Text("Error: ${(boughtBooks as BC.Error).exception.message}")
                         }
                     }
@@ -175,7 +202,7 @@ fun TransactionCard(transaction: Transaction) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                UserInfo(transaction.sellerUserName, "Seller")
+                transaction.sellerUserName?.let { UserInfo(it, "Seller") }
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = "Transfer",

@@ -3,7 +3,9 @@ package com.prafull.secondshelf.di
 import com.prafull.secondshelf.mainApp.screens.books.BookViewModel
 import com.prafull.secondshelf.mainApp.screens.home.HomeViewModel
 import com.prafull.secondshelf.mainApp.screens.home.searchScreen.SearchViewModel
-import com.prafull.secondshelf.mainApp.screens.list.ListingViewModel
+import com.prafull.secondshelf.mainApp.screens.list.addingBook.AddingBookViewModel
+import com.prafull.secondshelf.mainApp.screens.list.listing.ListingViewModel
+import com.prafull.secondshelf.mainApp.screens.profile.ProfileViewModel
 import com.prafull.secondshelf.mainApp.ui.MainViewModel
 import com.prafull.secondshelf.network.ApiService
 import com.prafull.secondshelf.network.AuthenticatedApiService
@@ -63,6 +65,8 @@ val appModule = module {
     viewModel { SearchViewModel(get()) }
     viewModel { BookViewModel() }
     viewModel { ListingViewModel() }
+    viewModel { ProfileViewModel() }
+    viewModel { AddingBookViewModel() }
 }
 
 const val BASE_URL = "http://192.168.183.141:8080/"

@@ -15,9 +15,8 @@ import androidx.navigation.NavController
 import com.prafull.secondshelf.R
 import com.prafull.secondshelf.mainApp.screens.books.BookScreen
 import com.prafull.secondshelf.mainApp.screens.home.HomeScreen
-import com.prafull.secondshelf.mainApp.screens.list.ListingScreen
+import com.prafull.secondshelf.mainApp.screens.list.listing.ListingScreen
 import com.prafull.secondshelf.mainApp.screens.profile.UserProfileScreen
-import com.prafull.secondshelf.model.User
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -53,27 +52,16 @@ fun MainApp(navController: NavController, viewModel: MainViewModel, logout: () -
             }
 
             AppDestinations.Profile -> {
-                UserProfileScreen(
-                    user = User(
-                        username = "prafull",
-                        password = "123456",
-                        fullName = "Prafull Kumar",
-                        mobileNumber = "1234567890"
-                    )
-                ) {
-
+                UserProfileScreen(viewModel = getViewModel()) {
+                    logout()
                 }
-            }
-
-            AppDestinations.Settings -> {
-
             }
         }
     }
 }
 
 enum class Models {
-    HOME, LISTING, BOOKS, PROFILE, SETTINGS
+    HOME, LISTING, BOOKS, PROFILE
 }
 
 enum class AppDestinations(
@@ -100,10 +88,5 @@ enum class AppDestinations(
         R.drawable.baseline_person_24,
         R.drawable.outline_person_24,
         "Profile"
-    ),
-    Settings(
-        R.drawable.baseline_settings_24,
-        R.drawable.outline_settings_24,
-        "Settings"
     )
 }

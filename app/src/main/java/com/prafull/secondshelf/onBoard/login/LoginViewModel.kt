@@ -1,10 +1,9 @@
 package com.prafull.secondshelf.onBoard.login
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prafull.secondshelf.di.BASE_URL
-import com.prafull.secondshelf.model.GeneralResponse
+import com.prafull.secondshelf.model.User
 import com.prafull.secondshelf.utils.SharedPrefManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +15,7 @@ import okhttp3.OkHttpClient
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import retrofit2.HttpException
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -24,7 +24,7 @@ import java.io.IOException
 
 interface LoginInterface {
     @GET("/auth/login")
-    suspend fun loginCheck(): GeneralResponse
+    suspend fun loginCheck(): Response<User>
 
 }
 
@@ -59,14 +59,13 @@ class LoginViewModel : ViewModel(), KoinComponent {
                     }.build()).addConverterFactory(GsonConverterFactory.create()).build()
                     .create<LoginInterface>()
                 val response = service.loginCheck()
-                if (response.success) {
-                    pref.loginUser(_uiState.value.username, _uiState.value.password)
+                if (response.isSuccessful) {
+                    pref.loginUser(response.body()!!)
                     _uiState.value = _uiState.value.copy(isLoading = false)
                     _navigateToHome.value = true
-                    Log.d("LoginViewModel", "login: ${response.message}")
                 } else {
                     _uiState.value = _uiState.value.copy(
-                        isLoading = false, errorMessage = response.message
+                        isLoading = false, errorMessage = response.errorBody()?.string()
                     )
                 }
             } catch (e: HttpException) {

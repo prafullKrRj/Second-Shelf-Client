@@ -19,19 +19,22 @@ interface AuthenticatedApiService {
     @GET("/api/user/books")
     suspend fun getUserListedBooks(): Response<BookResponse>
 
+    @GET("/api/user")
+    suspend fun getUser(): Response<User>
+
     @PUT("/api/user/update")
     suspend fun updateUserData(
         @Body user: User
-    ): GeneralResponse
+    ): Response<User>
 
     @GET("api/books/search")
     suspend fun searchBooks(@Query("query") query: String): Response<BookResponse>
 
     @POST("api/books/add")
-    suspend fun addBook(@Body bookDto: Book): Book
+    suspend fun addBook(@Body bookDto: Book): Response<Book>
 
-    @POST("api/books/sold-book")
-    suspend fun soldBook(@Body transaction: Transaction): Response<String>
+    @POST("api/books/sell-book")
+    suspend fun soldBook(@Body transaction: Transaction): Response<GeneralResponse>
 
 
     @GET("/api/books/getRandomBooks")

@@ -12,7 +12,7 @@ interface ApiService {
     @POST("/auth/register")
     suspend fun registerUser(
         @Body body: User
-    ): GeneralResponse
+    ): Response<GeneralResponse>
 
     @GET("/public/health-check")
     suspend fun healthCheck(): Response<GeneralResponse>
