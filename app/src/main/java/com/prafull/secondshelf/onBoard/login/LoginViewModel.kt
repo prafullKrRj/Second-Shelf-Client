@@ -1,5 +1,6 @@
 package com.prafull.secondshelf.onBoard.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prafull.secondshelf.di.BASE_URL
@@ -50,17 +51,25 @@ class LoginViewModel : ViewModel(), KoinComponent {
                 val service = Retrofit.Builder().baseUrl(BASE_URL)
                     .client(OkHttpClient.Builder().addInterceptor { chain ->
                         val credentials = Credentials.basic(
-                            username = _uiState.value.username,
-                            password = _uiState.value.password
+                            username = _uiState.value.username, password = _uiState.value.password
                         )
-                        val request = chain.request().newBuilder()
-                            .header("Authorization", credentials).build()
+                        val request =
+                            chain.request().newBuilder().header("Authorization", credentials)
+                                .build()
                         chain.proceed(request)
                     }.build()).addConverterFactory(GsonConverterFactory.create()).build()
                     .create<LoginInterface>()
                 val response = service.loginCheck()
                 if (response.isSuccessful) {
-                    pref.loginUser(response.body()!!)
+                    Log.d("LoginViewModel", "login: ${response.body()}")
+                    pref.loginUser(
+                        User(
+                            username = _uiState.value.username,
+                            password = _uiState.value.password,
+                            fullName = response.body()?.fullName ?: "",
+                            mobileNumber = response.body()?.mobileNumber ?: ""
+                        )
+                    )
                     _uiState.value = _uiState.value.copy(isLoading = false)
                     _navigateToHome.value = true
                 } else {

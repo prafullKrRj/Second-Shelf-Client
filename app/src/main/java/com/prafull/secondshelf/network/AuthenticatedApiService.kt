@@ -31,7 +31,7 @@ interface AuthenticatedApiService {
     suspend fun searchBooks(@Query("query") query: String): Response<BookResponse>
 
     @POST("api/books/add")
-    suspend fun addBook(@Body bookDto: Book): Response<Book>
+    suspend fun addBook(@Body bookDto: Book): Response<GeneralResponse>
 
     @POST("api/books/sell-book")
     suspend fun soldBook(@Body transaction: Transaction): Response<GeneralResponse>

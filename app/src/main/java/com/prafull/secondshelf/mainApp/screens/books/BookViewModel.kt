@@ -21,15 +21,18 @@ class BookViewModel : ViewModel(), KoinComponent {
     val boughtBooks = _boughtBooks.asStateFlow()
 
     init {
-        if (_soldBooks.value !is BC.Success) {
-            getSoldBooks()
+        viewModelScope.launch {
+            if (_soldBooks.value !is BC.Success) {
+                getSoldBooks()
+            }
+            if (_boughtBooks.value !is BC.Success) {
+                getBoughtBooks()
+            }
         }
-        if (_boughtBooks.value !is BC.Success) {
-            getBoughtBooks()
-        }
+
     }
 
-    fun getSoldBooks() = viewModelScope.launch {
+    suspend fun getSoldBooks() {
         try {
             _soldBooks.value = BC.Loading
             val response = service.getSoldBooks()
@@ -44,7 +47,7 @@ class BookViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun getBoughtBooks() = viewModelScope.launch {
+    suspend fun getBoughtBooks() {
         try {
             _boughtBooks.value = BC.Loading
             val response = service.getBoughtBooks()
@@ -56,5 +59,10 @@ class BookViewModel : ViewModel(), KoinComponent {
         } catch (e: Exception) {
             _boughtBooks.value = BC.Error(e)
         }
+    }
+
+    suspend fun getBooks() {
+        getBoughtBooks()
+        getSoldBooks()
     }
 }

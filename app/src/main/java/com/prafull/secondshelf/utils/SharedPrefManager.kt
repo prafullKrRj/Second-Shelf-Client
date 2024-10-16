@@ -36,12 +36,15 @@ class SharedPrefManager(context: Context) {
     fun getPassword(): String? {
         return prefs.getString(KEY_PASSWORD, null)
     }
+
     fun getPhoneNumber(): String? {
         return prefs.getString(KEY_PHONE_NUMBER, null)
     }
+
     fun getName(): String? {
         return prefs.getString(KEY_NAME, null)
     }
+
     fun isLoggedIn(): Boolean {
         return prefs.getBoolean(KEY_IS_LOGGED_IN, false)
     }

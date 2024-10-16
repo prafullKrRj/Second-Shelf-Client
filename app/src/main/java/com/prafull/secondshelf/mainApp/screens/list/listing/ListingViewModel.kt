@@ -12,19 +12,22 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class ListingViewModel : ViewModel(), KoinComponent {
+
+class ListingViewModel() : ViewModel(), KoinComponent {
     private val service: AuthenticatedApiService by inject()
 
     private val _listedBooks = MutableStateFlow<BC<List<Book>>>(BC.Loading)
     val listedBooks = _listedBooks.asStateFlow()
 
     init {
-        if (_listedBooks.value !is BC.Success) {
-            getBooks()
+        viewModelScope.launch {
+            if (_listedBooks.value !is BC.Success) {
+                getBooks()
+            }
         }
     }
 
-    fun getBooks() = viewModelScope.launch {
+    suspend fun getBooks() {
         _listedBooks.value = BC.Loading
         try {
             val books = service.getUserListedBooks()
@@ -36,6 +39,12 @@ class ListingViewModel : ViewModel(), KoinComponent {
             }
         } catch (e: Exception) {
             _listedBooks.value = BC.Error(e)
+        }
+    }
+
+    fun getBooksNonSuspend() {
+        viewModelScope.launch {
+            getBooks()
         }
     }
 

@@ -1,6 +1,7 @@
 package com.prafull.secondshelf.mainApp.screens.books
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,13 +33,19 @@ import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.prafull.secondshelf.model.Transaction
@@ -57,90 +65,140 @@ fun BookScreen(viewModel: BookViewModel, navController: NavController) {
     val pagerState = rememberPagerState {
         2
     }
+    val refreshState = rememberPullToRefreshState()
+    var isRefreshing by remember {
+        mutableStateOf(false)
+    }
     val coroutineScope = rememberCoroutineScope()
     val tabs = listOf("Sold Books", "Bought Books")
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "📚 Books")
-                }
-            )
+    PullToRefreshBox(isRefreshing = isRefreshing, onRefresh = {
+        coroutineScope.launch {
+            isRefreshing = true
+            viewModel.getBooks()
+            isRefreshing = false
         }
-    ) { innerPadding ->
-
-        Column(
-            modifier = Modifier.padding(innerPadding), verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TabRow(
-                selectedTabIndex = pagerState.currentPage,
-                indicator = { tabPositions: List<TabPosition> ->
-                    SecondaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+    }, state = refreshState) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(text = "📚 Books")
+                    }
+                )
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier.padding(innerPadding), verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        text = { Text(title) },
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(index)
-                            }
-                        }
-                    )
-                }
-            }
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { page ->
-                when (page) {
-                    0 -> {
-                        when (soldBooks) {
-                            is BC.Loading -> Text("Loading...")
-                            is BC.Success -> {
-                                if ((soldBooks as BC.Success<TransactionResponse>).data.isEmpty()) {
-                                    Text(
-                                        text = "No sold books yet",
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier.padding(16.dp)
-                                    )
-                                } else {
-                                    TransactionList((soldBooks as BC.Success<TransactionResponse>).data)
-                                }
-                            }
-
-                            is BC.Error -> Text("Error: ${(soldBooks as BC.Error).exception.message}")
-                        }
+                TabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    indicator = { tabPositions: List<TabPosition> ->
+                        SecondaryIndicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
-
-                    1 -> {
-                        when (boughtBooks) {
-                            is BC.Loading -> Text("Loading...")
-                            is BC.Success -> {
-                                if ((boughtBooks as BC.Success<TransactionResponse>).data.isEmpty()) {
-                                    Text(
-                                        text = "No bought books yet",
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier.padding(16.dp)
-                                    )
-                                } else {
-                                    TransactionList((boughtBooks as BC.Success<TransactionResponse>).data)
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            text = { Text(title) },
+                            selected = pagerState.currentPage == index,
+                            onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(index)
                                 }
                             }
+                        )
+                    }
+                }
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    when (page) {
+                        0 -> {
+                            when (soldBooks) {
+                                is BC.Loading -> {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                }
 
-                            is BC.Error -> Text("Error: ${(boughtBooks as BC.Error).exception.message}")
+                                is BC.Success -> {
+                                    if ((soldBooks as BC.Success<TransactionResponse>).data.isEmpty()) {
+                                        EmptyBooks(
+                                            text1 = "sold",
+                                            text2 = "selling"
+                                        )
+                                    } else {
+                                        TransactionList((soldBooks as BC.Success<TransactionResponse>).data)
+                                    }
+                                }
+
+                                is BC.Error -> Text("Error: ${(soldBooks as BC.Error).exception.message}")
+                            }
+                        }
+
+                        1 -> {
+                            when (boughtBooks) {
+                                is BC.Loading -> {
+                                    CircularProgressIndicator()
+                                }
+
+                                is BC.Success -> {
+                                    if ((boughtBooks as BC.Success<TransactionResponse>).data.isEmpty()) {
+                                        EmptyBooks(
+                                            text1 = "bought",
+                                            text2 = "buying"
+                                        )
+                                    } else {
+                                        TransactionList((boughtBooks as BC.Success<TransactionResponse>).data)
+                                    }
+                                }
+
+                                is BC.Error -> Text("Error: ${(boughtBooks as BC.Error).exception.message}")
+                            }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+
+@Composable
+fun EmptyBooks(modifier: Modifier = Modifier, text1: String, text2: String) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.AccountCircle,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "No books $text1 yet",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Start $text2 books to see them listed here.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

@@ -1,6 +1,5 @@
 package com.prafull.secondshelf.mainApp.screens.list.addingBook
 
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,9 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.io.ByteArrayOutputStream
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 
 class AddingBookViewModel : ViewModel(), KoinComponent {
@@ -29,15 +25,9 @@ class AddingBookViewModel : ViewModel(), KoinComponent {
     var numberOfPages by mutableStateOf("")
     var price by mutableStateOf("")
     var yearOfPrinting by mutableStateOf("")
-    var coverImageUrl by mutableStateOf<String?>(null)
+    var coverImageUrl by mutableStateOf("")
 
     private val pref by inject<SharedPrefManager>()
-    fun setImageBitmap(bitmap: Bitmap) {
-        viewModelScope.launch {
-            val base64String = convertBitmapToBase64(bitmap)
-            coverImageUrl = base64String
-        }
-    }
 
     private val _loading = MutableStateFlow(false)
     val loading = _loading.asStateFlow()
@@ -47,12 +37,9 @@ class AddingBookViewModel : ViewModel(), KoinComponent {
     private val _bookAdded = MutableStateFlow(false)
     val bookAdded = _bookAdded.asStateFlow()
 
-    @OptIn(ExperimentalEncodingApi::class)
-    private fun convertBitmapToBase64(bitmap: Bitmap): String {
-        val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-        val byteArray = outputStream.toByteArray()
-        return Base64.encode(byteArray)
+    init {
+        _bookAdded.value = false
+        _loading.value = false
     }
 
     fun submitListing() {
@@ -67,21 +54,22 @@ class AddingBookViewModel : ViewModel(), KoinComponent {
                     numberOfPages = numberOfPages.toInt(),
                     price = price.toDouble(),
                     yearOfPrinting = yearOfPrinting.toInt(),
-                    coverImageUrl = coverImageUrl ?: "",
+                    coverImageUrl = coverImageUrl,
                     sellerUserName = pref.getUsername(),
                     sellerFullName = pref.getName(),
                     sellerNumber = pref.getPhoneNumber() ?: "Unknown"
                 )
                 val response = service.addBook(book)
-                Log.d("AddingBookViewModel", "submitListing: ${book.toString()}")
                 if (response.isSuccessful) {
                     _bookAdded.value = response.isSuccessful
                 } else {
                     Log.d("AddingBookViewModel", "submitListing: ${response.errorBody()?.string()}")
+                    _bookAdded.value = false
                 }
 
             } catch (e: Exception) {
                 Log.d("AddingBookViewModel", "submitListing: ${e.message}")
+                _bookAdded.value = false
                 e.printStackTrace()
             }
             _loading.value = false
