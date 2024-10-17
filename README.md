@@ -1,5 +1,3 @@
-Here’s a more detailed README for the *Second Shelf Client* repository:
-
 ---
 
 # Second Shelf Client 📱
